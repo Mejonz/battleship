@@ -70,7 +70,7 @@ class Gameboard {
             this.gridsOccupied.push(element);
         })
 
-        return this.gridsOccupied;
+        return "success";
     }
     
     placeShipVertical(ship, startCoordinate) {
@@ -90,7 +90,7 @@ class Gameboard {
             this.gridsOccupied.push(element);
         });
 
-        return this.gridsOccupied;
+        return "success";
     }
 
     receiveAttack(coordinates) {
@@ -100,7 +100,8 @@ class Gameboard {
         const checkIfMiss = this.checkOccupied(this.gridsOccupied, coordinates);
         if (checkIfMiss === false) {
             this.gridsShotAt.push(coordinates);
-            return this.shotsMissed.push(coordinates);
+            this.shotsMissed.push(coordinates);
+            return "miss";
         }
 
         for (let i = 0; i < this.ships.length; i++) {
@@ -110,7 +111,53 @@ class Gameboard {
                 this.ships[i].isSunk();
                 this.gridsShotAt.push(coordinates);
                 this.shotsHit.push(coordinates);
-                return;
+                return "hit";
+            }
+        }
+    }
+
+    randomCoordinates() {
+        const x = Math.floor(Math.random() * 8);
+        const y = Math.floor(Math.random() * 8);
+        const arr = [x, y];
+        return arr;
+    }
+
+    randomAttack() {
+        while (true) {
+            // const coord = this.randomCoordinates();
+            let attk = this.receiveAttack(this.randomCoordinates());
+            console.log(attk);
+            if (attk === "hit" || attk === "miss") {
+                break;
+            }
+        }
+    }
+
+    randomDirection() {
+        const x = Math.floor(Math.random() * 2);
+        return x;
+    }
+
+    randomPlacement() {
+        for (let i = 0; i < this.ships.length; i++) {
+            const direction = this.randomDirection();
+            if (direction === 0) {
+                while (true) {
+                    const horizontal = this.placeShipHorizontal(this.ships[i], this.randomCoordinates());
+                    if (horizontal === "success") {
+                        break;
+                    }
+                }
+            }
+
+            if (direction === 1) {
+                while (true) {
+                    const vertical = this.placeShipVertical(this.ships[i], this.randomCoordinates());
+                    if (vertical === "success") {
+                        break;
+                    }
+                }
             }
         }
     }
@@ -124,30 +171,29 @@ class Gameboard {
         else return false;
     }
 
-    displayBoard(boardDiv, joinType) {
-        for (let i = 7; i >= 0; i--) {
-            for (let j = 0; j < 8; j++) {
-                let box = document.createElement("div");
-                boardDiv.appendChild(box);
-                box.classList.add("box");
+    // displayBoard(boardDiv, joinType) {
+    //     // const board2 = document.querySelector('#playerTwoBoardDiv');
 
-                let checkIfOccupied = this.checkOccupied(this.gridsOccupied, [i,j]);
-                if (checkIfOccupied === true) box.classList.add("occupied");
+    //     for (let i = 7; i >= 0; i--) {
+    //         for (let j = 0; j < 8; j++) {
+    //             let box = document.createElement("div");
+    //             boardDiv.appendChild(box);
+    //             box.classList.add("box");
+    //             box.id = [i,j].join(joinType);
 
-                let checkIfHit = this.checkOccupied(this.shotsHit, [i,j]);
-                if (checkIfHit === true) {
-                    if (checkIfOccupied === true) box.classList.remove("occupied");
-                    box.classList.add("hit");
-                }
+    //             const checkIfOccupied = this.checkOccupied(this.gridsOccupied, [i,j]);
+    //             if (checkIfOccupied === true) box.style.backgroundColor = "green";
 
-                let checkIfMiss = this.checkOccupied(this.shotsMissed, [i,j]);
-                if (checkIfMiss === true) box.classList.add("missed");
+    //             const checkIfHit = this.checkOccupied(this.shotsHit, [i,j]);
+    //             if (checkIfHit === true) {
+    //                 if (checkIfOccupied === true) box.style.backgroundColor = "red";
+    //             }
 
-                // box.id = [i,j].join(joinType);
-                
-            }
-        }
-    }
+    //             const checkIfMiss = this.checkOccupied(this.shotsMissed, [i,j]);
+    //             if (checkIfMiss === true) box.classList.add("missed");
+    //         }
+    //     }
+    // }
 };
 
 class Player {
